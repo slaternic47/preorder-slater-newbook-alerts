@@ -84,7 +84,8 @@
     cursor:pointer;transition:border-color .15s,color .15s;
   }
   .selectall:hover{border-color:var(--rose-deep);color:var(--ink);}
-  .pick-sub{font-family:"Bubble Sans","Inter",sans-serif;color:var(--ink-faint);font-size:.92rem;margin:6px 0 8px;}
+  .pick-sub{font-family:"Bubble Sans","Inter",sans-serif;color:var(--ink-faint);font-size:.92rem;margin:6px 0 2px;}
+  .pick-note{font-family:"Bubble Sans","Inter",sans-serif;color:var(--ink-faint);font-size:.86rem;line-height:1.5;margin:0 0 8px;max-width:60ch;opacity:.85;}
 
   .genre{margin-top:30px;}
   .genre-eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 12px;}
@@ -191,6 +192,7 @@
     <button class="selectall" id="selectAll" type="button">Select everything</button>
   </div>
   <p class="pick-sub">Tap any title to add it. Choose as many as you like.</p>
+  <p class="pick-note">Once titles have been determined, the sheet will be updated — you can fill it out as many times as you like.</p>
 
   <div id="genres"></div>
   <div class="note err" id="errNote"></div>
@@ -223,7 +225,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLmjVuqhgg42Rn8I4nG
 /* ===== 2) The Schedule-TBD catalogue (edit as dates firm up) ===== */
 const CATALOGUE = [
   { genre:"Shifter Omegaverse", books:[
-    { title:"Reindeer Shifter Holiday Novel", meta:"Series: Wolfscorge", timing:"December 2026" },
+    { title:"Reindeer Shifter Holiday Novel", meta:"Omegaverse", timing:"" },
     { title:"Ailuroverse — Avanne Michaels Collaboration", meta:"Rom-Com · New Designation", timing:"Late 2026 / Early 2027" },
   ]},
   { genre:"Omegaverse", books:[
@@ -290,10 +292,11 @@ CATALOGUE.forEach((group, gi) => {
     row.className = 'book';
     row.dataset.id = id;
     const metaLine = (b.meta ? '<div class="meta">'+b.meta+'</div>' : '');
+    const timingTag = (b.timing ? '<span class="timing">'+b.timing+'</span>' : '');
     row.innerHTML =
       '<div class="tick">'+checkSVG+'</div>'+
       '<div class="body"><div class="title">'+b.title+'</div>'+
-      metaLine+'<span class="timing">'+b.timing+'</span></div>';
+      metaLine+timingTag+'</div>';
     row.addEventListener('click', () => toggle(id, row));
     sec.appendChild(row);
   });

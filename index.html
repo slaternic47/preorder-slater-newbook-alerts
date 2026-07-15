@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Notify Me — the Slaterverse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0607; --bg-2:#130a0b; --surface:#180c0d; --surface-hi:#241213;
+    --ink:#f5eae9; --ink-soft:#cfb2b2; --ink-faint:#8f6d6e; --line:#3a1c1e;
+    --gold:#e5343f; --rose:#e11d2a; --rose-deep:#9e121b;
+    --shadow:0 18px 50px -20px rgba(0,0,0,.85);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:radial-gradient(120% 80% at 50% -10%, #1c0b0d 0%, var(--bg) 55%) fixed;
+    color:var(--ink); font-family:"Inter",system-ui,sans-serif; line-height:1.55;
+    -webkit-font-smoothing:antialiased; padding-bottom:120px;
+  }
+  a{color:var(--rose);}
+  .wrap{max-width:780px;margin:0 auto;padding:0 20px;}
+
+  header.site{text-align:center;padding:44px 20px 8px;}
+  .brandmark{
+    font-family:"Fraunces",serif;font-weight:600;letter-spacing:.18em;
+    text-transform:uppercase;font-size:.72rem;color:var(--gold);margin:0 0 26px;
+  }
+  h1.hero{
+    font-family:"Fraunces",serif;font-optical-sizing:auto;font-weight:600;
+    font-size:clamp(2.3rem,7vw,3.7rem);line-height:1.02;letter-spacing:-.01em;margin:0 0 18px;
+  }
+  h1.hero em{font-style:italic;color:var(--rose);font-weight:500;}
+  .lede{color:var(--ink-soft);font-size:1.06rem;max-width:52ch;margin:0 auto;}
+
+  .card{
+    background:linear-gradient(180deg,var(--bg-2),var(--surface));
+    border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);
+    padding:26px 24px;margin:36px 0 10px;
+  }
+  .card h2{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;margin:0 0 4px;}
+  .card p.small{color:var(--ink-faint);font-size:.9rem;margin:0 0 18px;}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  label.lbl{
+    display:block;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);margin-bottom:7px;
+  }
+  input[type=text],input[type=email]{
+    width:100%;background:#110809;border:1px solid var(--line);border-radius:11px;
+    color:var(--ink);font-family:inherit;font-size:1rem;padding:13px 14px;
+    transition:border-color .15s,box-shadow .15s;
+  }
+  input::placeholder{color:#77595a;}
+  input:focus{outline:none;border-color:var(--rose);box-shadow:0 0 0 3px rgba(225,29,42,.22);}
+  .req{color:var(--rose);}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+  .pick-head{
+    display:flex;align-items:baseline;justify-content:space-between;gap:14px;
+    flex-wrap:wrap;margin:44px 0 4px;
+  }
+  .pick-head h2{font-family:"Fraunces",serif;font-weight:600;font-size:1.5rem;margin:0;}
+  .selectall{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);
+    font-family:inherit;font-size:.82rem;padding:8px 14px;border-radius:999px;
+    cursor:pointer;transition:border-color .15s,color .15s;
+  }
+  .selectall:hover{border-color:var(--rose-deep);color:var(--ink);}
+  .pick-sub{color:var(--ink-faint);font-size:.92rem;margin:6px 0 8px;}
+
+  .genre{margin-top:30px;}
+  .genre-eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 12px;}
+  .genre-eyebrow .name{
+    font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold);font-weight:600;white-space:nowrap;
+  }
+  .genre-eyebrow .rule{height:1px;background:var(--line);flex:1;}
+  .genre-eyebrow .n{font-size:.74rem;color:var(--ink-faint);}
+
+  .book{
+    display:flex;gap:14px;align-items:flex-start;background:var(--surface);
+    border:1px solid var(--line);border-left:3px solid transparent;border-radius:13px;
+    padding:15px 16px;margin-bottom:9px;cursor:pointer;
+    transition:background .15s,border-color .15s,box-shadow .15s,transform .08s;user-select:none;
+  }
+  .book:hover{background:var(--surface-hi);}
+  .book:active{transform:scale(.996);}
+  .book.on{
+    background:var(--surface-hi);border-left-color:var(--rose);
+    box-shadow:0 0 0 1px rgba(225,29,42,.4),0 10px 30px -18px rgba(225,29,42,.7);
+  }
+  .tick{
+    flex:0 0 22px;height:22px;margin-top:2px;border:1.5px solid #5a2a2c;
+    border-radius:7px;display:grid;place-items:center;transition:background .15s,border-color .15s;
+  }
+  .book.on .tick{background:var(--rose);border-color:var(--rose);}
+  .tick svg{width:13px;height:13px;opacity:0;transform:scale(.6);transition:.15s;}
+  .book.on .tick svg{opacity:1;transform:scale(1);}
+  .book .body{flex:1;min-width:0;}
+  .book .title{font-family:"Fraunces",serif;font-weight:600;font-size:1.08rem;line-height:1.2;}
+  .book .meta{font-size:.82rem;color:var(--ink-faint);margin-top:3px;}
+  .book .timing{
+    display:inline-block;margin-top:8px;font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--gold);border:1px solid var(--line);
+    border-radius:999px;padding:3px 9px;
+  }
+
+  .bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(10,6,7,.9);
+    backdrop-filter:blur(14px);border-top:1px solid var(--line);
+    box-shadow:0 -12px 40px -20px rgba(0,0,0,.9);
+  }
+  .bar-inner{max-width:780px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:16px;}
+  .count{flex:1;min-width:0;}
+  .count .big{font-family:"Fraunces",serif;font-weight:600;font-size:1.15rem;}
+  .count .lbl2{color:var(--ink-faint);font-size:.82rem;}
+  .notify{
+    background:linear-gradient(180deg,var(--rose),var(--rose-deep));color:#fff;
+    font-family:inherit;font-weight:600;font-size:1rem;border:none;border-radius:12px;
+    padding:14px 26px;cursor:pointer;white-space:nowrap;
+    box-shadow:0 8px 24px -8px rgba(225,29,42,.7);transition:transform .08s,filter .15s;
+  }
+  .notify:hover{filter:brightness(1.06);}
+  .notify:active{transform:translateY(1px);}
+  .notify:disabled{opacity:.5;cursor:not-allowed;filter:none;}
+
+  .note{margin-top:14px;font-size:.9rem;border-radius:11px;padding:12px 14px;display:none;}
+  .note.err{display:block;background:rgba(225,29,42,.14);border:1px solid var(--rose-deep);color:#f6c7ca;}
+  .thanks{display:none;text-align:center;padding:60px 24px;}
+  .thanks.show{display:block;}
+  .thanks h2{font-family:"Fraunces",serif;font-weight:600;font-size:2rem;margin:0 0 12px;}
+  .thanks p{color:var(--ink-soft);max-width:46ch;margin:0 auto;}
+  .thanks .again{
+    margin-top:24px;background:none;border:1px solid var(--line);color:var(--ink-soft);
+    font-family:inherit;padding:11px 20px;border-radius:999px;cursor:pointer;
+  }
+  footer.site{text-align:center;color:var(--ink-faint);font-size:.82rem;padding:50px 20px 20px;}
+  @media (max-width:520px){
+    .bar-inner{padding:11px 16px;gap:12px;}
+    .notify{padding:13px 20px;}
+    .count .big{font-size:1.05rem;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <p class="brandmark">the Slaterverse</p>
+  <div class="wrap">
+    <h1 class="hero">Don't miss the <em>drop.</em></h1>
+    <p class="lede">These stories don't have release dates yet. Tell me which ones you're waiting on, and I'll email you the moment each one gets a date and a preorder link.</p>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <div class="card">
+    <h2>Where should I reach you?</h2>
+    <p class="small">Just an email — I'll only use it for release alerts on the books you pick.</p>
+    <div class="field">
+      <label class="lbl" for="email">Email <span class="req">*</span></label>
+      <input type="email" id="email" autocomplete="email" placeholder="you@example.com" required />
+    </div>
+    <div class="hp" aria-hidden="true">
+      <label>Leave this empty<input type="text" id="website" tabindex="-1" autocomplete="off" /></label>
+    </div>
+  </div>
+
+  <div class="pick-head">
+    <h2>Pick your books</h2>
+    <button class="selectall" id="selectAll" type="button">Select everything</button>
+  </div>
+  <p class="pick-sub">Tap any title to add it. Choose as many as you like.</p>
+
+  <div id="genres"></div>
+  <div class="note err" id="errNote"></div>
+</main>
+
+<div class="wrap">
+  <div class="thanks" id="thanks">
+    <h2>You're on the list.</h2>
+    <p id="thanksMsg">The moment any of your picks gets a release date, it'll hit your inbox.</p>
+    <button class="again" id="again" type="button">Add more books</button>
+  </div>
+</div>
+
+<footer class="site">© 2020–2027 N. Slater. All rights reserved.</footer>
+
+<div class="bar" id="bar">
+  <div class="bar-inner">
+    <div class="count">
+      <span class="big" id="countBig">0 books</span>
+      <div class="lbl2" id="countLbl">selected</div>
+    </div>
+    <button class="notify" id="notify" type="button" disabled>Notify me</button>
+  </div>
+</div>
+
+<script>
+/* ===== 1) PASTE YOUR APPS SCRIPT URL HERE (see SETUP.md) ===== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLmjVuqhgg42Rn8I4nGfBquhmSNNRTpRhGDP4y0k-hNozbIsqBNBnT_EJu4Bv_Qp9-/exec";
+
+/* ===== 2) The Schedule-TBD catalogue (edit as dates firm up) ===== */
+const CATALOGUE = [
+  { genre:"Shifter Omegaverse", books:[
+    { title:"Reindeer Shifter Holiday Novel", meta:"Series: Wolfscorge", timing:"December 2026" },
+    { title:"Ailuroverse — Avanne Michaels Collaboration", meta:"Rom-Com · New Designation", timing:"Late 2026 / Early 2027" },
+  ]},
+  { genre:"Omegaverse", books:[
+    { title:"Beyond Biology Duology", meta:"Beta-Centric · Older Beta", timing:"Early 2027" },
+    { title:"Delete the Kisses", meta:"Age Gap · Needy Omega", timing:"Early 2027" },
+    { title:"Vera V. Pierce Collaboration", meta:"", timing:"Early 2027" },
+    { title:"Hearthstone Series", meta:"Always Yours Spin-off", timing:"2027" },
+    { title:"Bully x Academy", meta:"Two Omega Pack · Second Chance", timing:"2027" },
+    { title:"Paranormal x Magic", meta:"Female Alpha · Two Omega Pack", timing:"2027" },
+    { title:"Knotlocke Academy Part 2", meta:"", timing:"Additional Titles" },
+    { title:"Hollis Rebellion", meta:"Hurt/Comfort · Dark", timing:"Additional Titles" },
+  ]},
+  { genre:"Contemporary", books:[
+    { title:"In the Shadow of You", meta:"Professor x Student", timing:"Early 2027" },
+    { title:"Rockstar x Military", meta:"Hurt/Comfort", timing:"2027" },
+    { title:"After the Encore", meta:"Rockstar x Bodyguard", timing:"2027" },
+    { title:"Sapphic Sweet Series", meta:"Hurt/Comfort · Smalltown", timing:"2027 / 2028" },
+    { title:"Wild Hearts Trilogy", meta:"Polyam Rancher · Interconnected Standalones", timing:"2027" },
+  ]},
+  { genre:"Betaverse", books:[
+    { title:"Claim Me Gently", meta:"Autistic Representation · Single Mother", timing:"2027" },
+  ]},
+  { genre:"Paranormal", books:[
+    { title:"Hollow Reign Series", meta:"Witches · Shifters · Hell", timing:"2027" },
+    { title:"Temptation Series", meta:"Demons x Angels", timing:"Finishes 2027" },
+    { title:"Bates and Switch", meta:"MMF · Roommate & Ex's Father · Satan x Chaos Demon", timing:"2027" },
+  ]},
+  { genre:"Monster Romance", books:[
+    { title:"Demon Hockey", meta:"Shifters · Needy MC", timing:"2027" },
+  ]},
+  { genre:"Dark Romance", books:[
+    { title:"Smoke and Sin", meta:"Hurt/Comfort · Dom/Sub", timing:"2027" },
+    { title:"Badge of Ruin", meta:"MM · Stepfather x Stepson (Not Blood Related)", timing:"2027" },
+  ]},
+  { genre:"Dark Contemporary", books:[
+    { title:"Toxic Temptation", meta:"Twincest x Cousin", timing:"2027" },
+    { title:"Secrets We Burn", meta:"MMMFM · Touch Her and Die · Fierce FMC", timing:"2027" },
+  ]},
+  { genre:"Paranormal Omegaverse", books:[
+    { title:"Wolfscorge Series", meta:"Shifters", timing:"Additional Titles" },
+  ]},
+  { genre:"Monster Omegaverse", books:[
+    { title:"Chimera Files", meta:"Hurt/Comfort · Array of Monster", timing:"Additional Titles" },
+  ]},
+];
+
+const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
+const genresEl = document.getElementById('genres');
+const selected = new Set();
+let allBooks = [];
+
+CATALOGUE.forEach((group, gi) => {
+  const sec = document.createElement('section');
+  sec.className = 'genre';
+  sec.innerHTML =
+    '<div class="genre-eyebrow"><span class="name">'+group.genre+'</span>'+
+    '<span class="rule"></span><span class="n">'+group.books.length+
+    (group.books.length===1?' title':' titles')+'</span></div>';
+  group.books.forEach((b, bi) => {
+    const id = 'g'+gi+'b'+bi;
+    b._id = id; b._genre = group.genre;
+    allBooks.push(b);
+    const row = document.createElement('div');
+    row.className = 'book';
+    row.dataset.id = id;
+    const metaLine = (b.meta ? '<div class="meta">'+b.meta+'</div>' : '');
+    row.innerHTML =
+      '<div class="tick">'+checkSVG+'</div>'+
+      '<div class="body"><div class="title">'+b.title+'</div>'+
+      metaLine+'<span class="timing">'+b.timing+'</span></div>';
+    row.addEventListener('click', () => toggle(id, row));
+    sec.appendChild(row);
+  });
+  genresEl.appendChild(sec);
+});
+
+function toggle(id, row){
+  if(selected.has(id)){ selected.delete(id); row.classList.remove('on'); }
+  else { selected.add(id); row.classList.add('on'); }
+  updateCount();
+}
+function updateCount(){
+  const n = selected.size;
+  document.getElementById('countBig').textContent = n + (n===1?' book':' books');
+  document.getElementById('countLbl').textContent = n===0 ? 'selected' : 'ready for alerts';
+  document.getElementById('notify').disabled = n===0;
+  document.getElementById('selectAll').textContent =
+    (n===allBooks.length) ? 'Clear all' : 'Select everything';
+}
+document.getElementById('selectAll').addEventListener('click', () => {
+  const all = selected.size === allBooks.length;
+  document.querySelectorAll('.book').forEach(row => {
+    if(all){ selected.delete(row.dataset.id); row.classList.remove('on'); }
+    else { selected.add(row.dataset.id); row.classList.add('on'); }
+  });
+  updateCount();
+});
+
+const errNote = document.getElementById('errNote');
+function showErr(msg){ errNote.textContent = msg; errNote.classList.add('err'); }
+function clearErr(){ errNote.classList.remove('err'); }
+document.getElementById('notify').addEventListener('click', submit);
+
+async function submit(){
+  clearErr();
+  const email = document.getElementById('email').value.trim();
+  const trap  = document.getElementById('website').value;
+  if(trap){ return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    showErr('Please enter a valid email so I can reach you.');
+    document.getElementById('email').focus();
+    document.getElementById('email').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  if(selected.size === 0){ showErr('Pick at least one book first.'); return; }
+
+  const books = allBooks.filter(b => selected.has(b._id))
+    .map(b => ({ title:b.title, genre:b._genre, timing:b.timing }));
+  const payload = { email, books };
+  const btn = document.getElementById('notify');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  if(SCRIPT_URL.indexOf('PASTE_') === 0){
+    showErr("This form isn't connected yet. Add your Apps Script URL to SCRIPT_URL in index.html.");
+    btn.disabled = false; btn.textContent = 'Notify me';
+    return;
+  }
+  try{
+    await fetch(SCRIPT_URL, {
+      method:'POST',
+      mode:'no-cors',
+      body: JSON.stringify(payload)
+    });
+    succeed(books.length);
+  }catch(e){
+    showErr('Something went wrong sending that. Please try again in a moment.');
+    btn.disabled = false; btn.textContent = 'Notify me';
+  }
+}
+function succeed(n){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('bar').style.display = 'none';
+  document.getElementById('thanksMsg').textContent =
+    'The moment any of your ' + n + (n===1?' pick':' picks') +
+    " gets a release date, it'll hit your inbox.";
+  document.getElementById('thanks').classList.add('show');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('again').addEventListener('click', () => {
+  selected.clear();
+  document.querySelectorAll('.book').forEach(r=>r.classList.remove('on'));
+  updateCount();
+  document.getElementById('thanks').classList.remove('show');
+  document.getElementById('app').style.display = '';
+  document.getElementById('bar').style.display = '';
+  const btn = document.getElementById('notify');
+  btn.disabled = true; btn.textContent = 'Notify me';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+updateCount();
+</script>
+</body>
+</html>

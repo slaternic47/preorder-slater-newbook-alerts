@@ -93,6 +93,23 @@
     font-family:"Bebas Neue",Impact,sans-serif;font-size:1.02rem;letter-spacing:.14em;
     color:var(--gold);font-weight:400;white-space:nowrap;
   }
+  .dated-section{margin:44px 0 8px;}
+  .dated-head{display:flex;align-items:center;gap:14px;margin:0 0 14px;}
+  .dated-head h2{
+    font-family:"Bebas Neue",Impact,sans-serif;font-weight:400;letter-spacing:.06em;
+    font-size:1.9rem;margin:0;color:var(--rose);
+  }
+  .dated-head .rule{height:1px;background:var(--line);flex:1;}
+  .book.dated{cursor:default;border-left-color:var(--rose);}
+  .book.dated:hover{background:var(--surface);}
+  .book.dated:active{transform:none;}
+  .book .spacer{flex:0 0 22px;height:22px;margin-top:2px;}
+  .announce{
+    font-family:"Bubble Sans","Inter",sans-serif;
+    display:block;margin-top:9px;font-size:.86rem;line-height:1.55;color:var(--rose);
+  }
+  .announce a{color:var(--ink);text-decoration:underline;text-underline-offset:3px;}
+  .announce a:hover{color:var(--rose);}
   .genre-eyebrow .rule{height:1px;background:var(--line);flex:1;}
   .genre-eyebrow .n{font-size:.74rem;color:var(--ink-faint);}
 
@@ -187,6 +204,14 @@
     </div>
   </div>
 
+  <section id="datedSection" class="dated-section" style="display:none;">
+    <div class="dated-head">
+      <h2>Now has a date</h2>
+      <span class="rule"></span>
+    </div>
+    <div id="datedList"></div>
+  </section>
+
   <div class="pick-head">
     <h2>Pick your books</h2>
     <button class="selectall" id="selectAll" type="button">Select everything</button>
@@ -258,10 +283,12 @@ const CATALOGUE = [
   ]},
   { genre:"Dark Romance", books:[
     { title:"Smoke and Sin", meta:"Hurt/Comfort · Dom/Sub", timing:"2027" },
-    { title:"Badge of Ruin", meta:"MM · Stepfather x Stepson (Not Blood Related)", timing:"2027" },
+    { title:"Badge of Ruin", meta:"MM · Stepfather x Stepson (Not Blood Related)", timing:"", dated:true, sortDate:"2027-04-28",
+      announce:'Now Releasing 04/28/27. Preorder on <a href="https://books2read.com/u/bPqBdJ" target="_blank" rel="noopener">Amazon</a> or <a href="https://welcometothemadness.com/products/badge-of-ruin-releasing-april-26-2027" target="_blank" rel="noopener">my website</a> — preorder from my website and receive it two days earlier!' },
   ]},
   { genre:"Dark Contemporary", books:[
-    { title:"Toxic Temptation", meta:"Twincest x Cousin", timing:"2027" },
+    { title:"Toxic Temptation", meta:"Twincest x Cousin", timing:"", dated:true, sortDate:"2027-02-03",
+      announce:'Now Releasing 02/03/27. Only available on <a href="https://tinyurl.com/toxic-temptation" target="_blank" rel="noopener">my website</a> for preorder.' },
     { title:"Secrets We Burn", meta:"MMMFM · Touch Her and Die · Fierce FMC", timing:"2027" },
   ]},
   { genre:"Paranormal Omegaverse", books:[
@@ -274,24 +301,40 @@ const CATALOGUE = [
 
 const checkSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>';
 const genresEl = document.getElementById('genres');
+const datedList = document.getElementById('datedList');
 const selected = new Set();
 let allBooks = [];
+let datedCount = 0;
+const datedRows = [];
 
 CATALOGUE.forEach((group, gi) => {
+  const pending = group.books.filter(function(b){ return !b.dated; }).length;
   const sec = document.createElement('section');
   sec.className = 'genre';
   sec.innerHTML =
     '<div class="genre-eyebrow"><span class="name">'+group.genre+'</span>'+
-    '<span class="rule"></span><span class="n">'+group.books.length+
-    (group.books.length===1?' title':' titles')+'</span></div>';
+    '<span class="rule"></span><span class="n">'+pending+
+    (pending===1?' title':' titles')+'</span></div>';
   group.books.forEach((b, bi) => {
     const id = 'g'+gi+'b'+bi;
     b._id = id; b._genre = group.genre;
-    allBooks.push(b);
     const row = document.createElement('div');
-    row.className = 'book';
     row.dataset.id = id;
     const metaLine = (b.meta ? '<div class="meta">'+b.meta+'</div>' : '');
+
+    if(b.dated){
+      // Already has a release date — shown up top, informational only.
+      row.className = 'book dated';
+      row.innerHTML =
+        '<div class="spacer"></div>'+
+        '<div class="body"><div class="title">'+b.title+'</div>'+
+        metaLine+'<span class="announce">'+b.announce+'</span></div>';
+      datedRows.push({ el: row, key: b.sortDate || '9999-99-99' });
+      datedCount++;
+      return;
+    }
+    allBooks.push(b);
+    row.className = 'book';
     const timingTag = (b.timing ? '<span class="timing">'+b.timing+'</span>' : '');
     row.innerHTML =
       '<div class="tick">'+checkSVG+'</div>'+
@@ -300,8 +343,14 @@ CATALOGUE.forEach((group, gi) => {
     row.addEventListener('click', () => toggle(id, row));
     sec.appendChild(row);
   });
-  genresEl.appendChild(sec);
+  if(pending > 0) genresEl.appendChild(sec);
 });
+
+if(datedCount > 0){
+  datedRows.sort(function(a,b){ return a.key < b.key ? -1 : a.key > b.key ? 1 : 0; });
+  datedRows.forEach(function(r){ datedList.appendChild(r.el); });
+  document.getElementById('datedSection').style.display = '';
+}
 
 function toggle(id, row){
   if(selected.has(id)){ selected.delete(id); row.classList.remove('on'); }
@@ -318,7 +367,7 @@ function updateCount(){
 }
 document.getElementById('selectAll').addEventListener('click', () => {
   const all = selected.size === allBooks.length;
-  document.querySelectorAll('.book').forEach(row => {
+  document.querySelectorAll('.book:not(.dated)').forEach(row => {
     if(all){ selected.delete(row.dataset.id); row.classList.remove('on'); }
     else { selected.add(row.dataset.id); row.classList.add('on'); }
   });
@@ -377,7 +426,7 @@ function succeed(n){
 }
 document.getElementById('again').addEventListener('click', () => {
   selected.clear();
-  document.querySelectorAll('.book').forEach(r=>r.classList.remove('on'));
+  document.querySelectorAll('.book:not(.dated)').forEach(r=>r.classList.remove('on'));
   updateCount();
   document.getElementById('thanks').classList.remove('show');
   document.getElementById('app').style.display = '';
